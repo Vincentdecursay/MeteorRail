@@ -27,7 +27,9 @@ In /software
 
 ## Developement
 In /code
-
-**Prerequies**
+### Prerequies
 - **Blessed** for the user interface: https://github.com/jquast/blessed
 - **Cython** for the compilation
+
+### Compilation
+Just execute **compile.sh**
