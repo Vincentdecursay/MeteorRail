@@ -87,6 +87,7 @@ def take_picture():
     io.output(camera_trigger_pin, False)
 
 def stacking():
+    print_current_task('stacking', 0 )
     for x in range(0, number_of_shot):
             time.sleep(camera_vibration_delay)
             take_picture()
@@ -109,14 +110,14 @@ def print_screen():
         print("    / /\/\ |  __| ||  __| (_) | |    _\ | || (_| | (__|   <  " +  term.orange("| |_| ") + term.orangered("_") + term.orange("| |"))
         print(term.orangered("    \/    \/\___|\__\___|\___/|_|    \__/\__\__,_|\___|_|\_\ ") +  term.orange(" \___") +  term.orangered("(_") + term.orange("|_|"))
         print('===========================================================================')
-        print(term.red("current task:"))
+        print(term.bold("current task:"))
         print("")
         print("")
         print("")
         print('===========================================================================')
-        print(term.orangered('q') + ' quit | ' + term.orangered('e') + ' enable motor | ' + term.orangered('d') + ' disable motor ')
-        print(term.orangered('r') + ' reverse step | ' + term.orangered('f') + ' forward step | ' + term.orangered('t') + ' reverse rotation | ' + term.orangered('g') + ' forward rotation')
-        print(term.orangered('s') + ' take a shot | ' + term.orangered('z') + ' begin stacking!')
+        print(term.bold('q') + ' quit | ' + term.bold('e') + ' enable motor | ' + term.bold('d') + ' disable motor ')
+        print(term.bold('r') + ' reverse step | ' + term.bold('f') + ' forward step | ' + term.bold('t') + ' reverse rotation | ' + term.bold('g') + ' forward rotation')
+        print(term.bold('s') + ' take a shot | ' + term.bold('z') + ' begin stacking!')
         
 def print_current_task(current_task, status):
         if status == 0 :
