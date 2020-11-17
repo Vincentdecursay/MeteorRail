@@ -23,7 +23,7 @@ Motorized stacking rail project for micro and macrophotograhy, controlled by a R
 ## Usage
 In /software
 - Configuration in config.txt
-```
+``` python
 [STEPPER_MOTOR]
 motor_enable_pin = 17 # GPIO pins
 motor_direction_pin = 27
