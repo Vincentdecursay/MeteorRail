@@ -4,7 +4,6 @@ import sys, tty, termios, time
 from subprocess import call
 import configparser
 
-io.cleanup()
 
 io.setmode(io.BCM)
 
@@ -81,6 +80,7 @@ def rotate_reverse():
     for x in range(0, pulses_per_rev):
             step_reverse()
 
+# CAMERA FUNCTION
 def take_picture():
     io.output(camera_trigger_pin, True)
     time.sleep(camera_trigger_delay)
@@ -104,23 +104,26 @@ from blessed import Terminal
 term = Terminal()
 
 def print_screen():
-	print(term.orangered('Meteor_Stacker ') +  term.orange('0.1'))
-	print('------------------')
+	print(term.orangered("      /\/\   ___| |_ ___  ___  _ __  / _| |_ __ _  ___| | __ ") +  term.orange(" / _ \ / |"))
+	print(term.orangered("     /    \ / _ | __/ _ \/ _ \| '__| \ \| __/ _` |/ __| |/ / ") +  term.orange("| ' ' || |"))
+	print(term.orangered("    / /\/\ |  __| ||  __| (_) | |    _\ | || (_| | (__|   <  ") +  term.orange("| |_| _| |"))
+	print(term.orangered("    \/    \/\___|\__\___|\___/|_|    \__/\__\__,_|\___|_|\_\ ") +  term.orange(" \___(_|_|"))
+	print('<=========================================================================>')
 	print(term.orangered("current task:"))
 	print("")
 	print("")
 	print("")
 	print("")
-	print('------------------')
+	print('<=========================================================================>')
 	print(term.orangered('q') + ' quit | ' + term.orangered('e') + ' enable motor | ' + term.orangered('d') + ' disable motor ')
 	print(term.orangered('r') + ' reverse step | ' + term.orangered('f') + ' forward step | ' + term.orangered('t') + ' reverse rotation | ' + term.orangered('g') + ' forward rotation')
 	print(term.orangered('s') + ' take a shot | ' + term.orangered('z') + ' begin stacking!')
 	
 def print_current_task(current_task, status):
 	if status == 0 :
-		print(term.move_y(3) + term.clear_eol() + term.orange(current_task))
+		print(term.move_y(6) + term.clear_eol() + term.orange(current_task))
 	else:
-		print(term.move_y(3) + term.clear_eol() + term.green(current_task))
+		print(term.move_y(6) + term.clear_eol() + term.green(current_task))
 
 # The getch method can determine which key has been pressed
 # by the user on the keyboard by accessing the system files
