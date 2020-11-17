@@ -23,6 +23,26 @@ Motorized stacking rail project for micro and macrophotograhy, controlled by a R
 ## Usage
 In /software
 - Configuration in config.txt
+``` python
+[STEPPER_MOTOR]
+motor_enable_pin = 17 # GPIO pins
+motor_direction_pin = 27
+motor_step_pin = 22
+motor_delay = 3E-004
+# Number of pulses needed to do one revolution, can be changed with the motor controller
+pulses_per_rev = 400
+
+[CAMERA]
+# GPIO pin
+camera_trigger_pin = 23
+camera_trigger_delay = 0.2 # the time needed for the camera to detect that it had been triggered. Keep it as low as possible
+camera_vibration_delay = 1 # delay for the all rail setup to stabilize before taking a picture
+camera_taking_picture_delay = 0.2 # delay to let the camera take the picture before moving again during stacking
+
+[STACKING]
+number_of_shot = 10 # Number of pictures taken during a stack
+number_of_step = 2 # Number of steps done for each picture taken
+```
 - Execute meteor_stack
 
 ## Developement
