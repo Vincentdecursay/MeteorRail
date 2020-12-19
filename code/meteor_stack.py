@@ -18,7 +18,7 @@ motor_step_pin = int(config['STEPPER_MOTOR']['motor_step_pin'])
 
 motor_delay = float(config['STEPPER_MOTOR']['motor_delay'])             # By playing with this delay you can influence the rotational speed.
 pulses_per_rev = int(config['STEPPER_MOTOR']['pulses_per_rev'])         # This can be configured on the driver using the DIP-switches
-motor_is_enabled = 0
+motor_is_enabled = 1
 
 # CAMERA CONFIG
 camera_trigger_pin = int(config['CAMERA']['camera_trigger_pin'])    # GPIO pin used to trigger the camera
@@ -27,10 +27,11 @@ camera_trigger_delay = float(config['CAMERA']['camera_trigger_delay'])          
 camera_vibration_delay = float(config['CAMERA']['camera_vibration_delay'])      # The duration to wait for the all setup to stabilize to reduce moving blur
 camera_taking_picture_delay = float(config['CAMERA']['camera_taking_picture_delay']) #Waiting for the camera to take a picture
 
+double_shot_is_enabled = int(config['CAMERA']['double_shot_is_enabled']) # for the mirror lockup option
+
 # STACKING CONFIG
 number_of_shot = int(config['STACKING']['number_of_shot'])
 number_of_step = int(config['STACKING']['number_of_step'])
-
 
 # GPIO CONFIGURATION
 io.setup(motor_enable_pin, io.OUT)
@@ -52,16 +53,17 @@ io.output(camera_trigger_pin, False)
 # disable the motor, the motor will move freely
 def stepper_enable():
     global motor_is_enabled
-    if motor_is_enabled == 1:
+    if motor_is_enabled == 0:
         io.output(motor_enable_pin, False)
-        motor_is_enabled = 0
-        print_screen()
-        print_current_task("motor disabled",1)
-    else:
-        io.output(motor_enable_pin, True)
         motor_is_enabled = 1
         print_screen()
         print_current_task("motor enabled",1)
+    else:
+        io.output(motor_enable_pin, True)
+        motor_is_enabled = 0
+        print_screen()
+        print_current_task("motor disabled",1)
+
 
 def step_once():
     io.output(motor_step_pin, True)
@@ -90,6 +92,10 @@ def rotate_reverse():
 
 # CAMERA FUNCTION
 def take_picture():
+    if double_shot_is_enabled == 1:
+        take_picture()
+        time.sleep(camera_taking_picture_delay)
+    time.sleep(camera_vibration_delay)
     io.output(camera_trigger_pin, True)
     time.sleep(camera_trigger_delay)
     io.output(camera_trigger_pin, False)
@@ -97,15 +103,22 @@ def take_picture():
 def stacking():
     print_current_task('stacking', 0 )
     for x in range(0, number_of_shot):
-            time.sleep(camera_vibration_delay)
-            take_picture()
             take_picture()
             time.sleep(camera_taking_picture_delay)
             print_current_task('stacking : picture ' + str(x + 1) + '/' + str(number_of_shot), 0 )
             for y in range(0, number_of_step):
                 step_forward()
 
-
+def double_shot_enable():
+    global double_shot_is_enabled
+    if double_shot_is_enabled == 1:
+        double_shot_is_enabled = 0
+        print_screen()
+        print_current_task("double shot disabled",1)
+    else:
+        double_shot_is_enabled = 1
+        print_screen()
+        print_current_task("double shot enabled",1)
 
 # BLESSED INTERFACE
 # https://github.com/jquast/blessed
@@ -122,23 +135,27 @@ def print_screen():
         print("    / /\/\ |  __| ||  __| (_) | |    _\ | || (_| | (__|   <  " +  term.orange("| |_| ") + term.orangered("_") + term.orange("| |"))
         print(term.orangered("    \/    \/\___|\__\___|\___/|_|    \__/\__\__,_|\___|_|\_\ ") +  term.orange(" \___") +  term.orangered("(_") + term.orange("|_|"))
         print('===========================================================================')
-        print(term.bold("current task:"))
-        print("")
-        print("")
-        print("")
+        print(term.bold(" current task:") + term.move_x(38) + "|" + " number of shot: " + term.bold(str(number_of_shot)))
+        print(term.move_x(38) + "|" + " number of step: " + term.bold(str(number_of_step)))
+        print(term.move_x(38) + "|")
+        print(term.move_x(38) + "|")
         print('===========================================================================')
         if motor_is_enabled == 0:
-                print(term.bold('q') + ' quit | ' + term.bold('m') + ' enable motor')
+                print(' ' + term.bold('q') + ' quit | ' + term.bold('m') + ' enable motor')
         else:
-                print(term.bold('q') + ' quit | ' + term.bold('m') + ' disable motor ')
-        print(term.bold('r') + ' reverse step | ' + term.bold('f') + ' forward step | ' + term.bold('t') + ' reverse rotation | ' + term.bold('g') + ' forward rotation')
-        print(term.bold('s') + ' take a shot | ' + term.bold('z') + ' begin stacking!')
+                print(' ' + term.bold('q') + ' quit | ' + term.bold('m') + ' disable motor ')
+        print(' ' + term.bold('r') + ' reverse step | ' + term.bold('f') + ' forward step | ' + term.bold('t') + ' reverse rotation | ' + term.bold('g') + ' forward rotation')
+        if double_shot_is_enabled == 0:
+                print(' ' + term.bold('s') + ' take a shot | ' + term.bold('z') + ' begin stacking! | ' + term.bold('d') + ' enable double shot')
+        else:
+                print(' ' + term.bold('s') + ' take a shot | ' + term.bold('z') + ' begin stacking! | ' + term.bold('d') + ' disable double shot')
+
         
 def print_current_task(current_task, status):
         if status == 0 :
-                print(term.move_y(7) + term.clear_eol() + term.orange(current_task))
+                print(term.move_y(7) + '                                      ' + term.move_x(1) + term.orange(current_task))
         else:
-                print(term.move_y(7) + term.clear_eol() + term.green(current_task))
+                print(term.move_y(7) + '                                      ' + term.move_x(1) + term.green(current_task))
 
 # The getch method can determine which key has been pressed
 # by the user on the keyboard by accessing the system files
@@ -177,7 +194,6 @@ with term.fullscreen(),term.cbreak():
                         print_current_task("forward rotation",1)
                 elif val.lower() == 'm':
                         stepper_enable()
-                        print_current_task("motor enabled",1)
                 elif val.lower() == 's':
                         take_picture()
                         print_current_task("took a shot",1)
@@ -186,6 +202,8 @@ with term.fullscreen(),term.cbreak():
                 elif val.lower() == 'z':
                         stacking()
                         print_current_task("stack finished",1)
+                elif val.lower() == 'd':
+                        double_shot_enable()
                         
         
         io.output(motor_enable_pin, False)

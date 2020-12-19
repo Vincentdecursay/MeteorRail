@@ -10,6 +10,7 @@ camera_trigger_pin = 23
 camera_trigger_delay = 0.2
 camera_vibration_delay = 1
 camera_taking_picture_delay = 0.2
+double_shot_is_enabled = 0
 
 [STACKING]
 number_of_shot = 40
