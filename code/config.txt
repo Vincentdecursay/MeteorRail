@@ -12,5 +12,5 @@ camera_vibration_delay = 1
 camera_taking_picture_delay = 0.2
 
 [STACKING]
-number_of_shot = 10
-number_of_step = 2
+number_of_shot = 40
+number_of_step = 4

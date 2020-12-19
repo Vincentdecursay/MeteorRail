@@ -18,6 +18,7 @@ motor_step_pin = int(config['STEPPER_MOTOR']['motor_step_pin'])
 
 motor_delay = float(config['STEPPER_MOTOR']['motor_delay'])             # By playing with this delay you can influence the rotational speed.
 pulses_per_rev = int(config['STEPPER_MOTOR']['pulses_per_rev'])         # This can be configured on the driver using the DIP-switches
+motor_is_enabled = 0
 
 # CAMERA CONFIG
 camera_trigger_pin = int(config['CAMERA']['camera_trigger_pin'])    # GPIO pin used to trigger the camera
@@ -48,12 +49,19 @@ io.output(camera_trigger_pin, False)
 
 ## STEPPER MOTOR FUNCTION
 # enable the motor, the motor will stop any unwanted rotation
-def stepper_enable():
-    io.output(motor_enable_pin, False)
-
 # disable the motor, the motor will move freely
-def stepper_disable():
-    io.output(motor_enable_pin, True)
+def stepper_enable():
+    global motor_is_enabled
+    if motor_is_enabled == 1:
+        io.output(motor_enable_pin, False)
+        motor_is_enabled = 0
+        print_screen()
+        print_current_task("motor disabled",1)
+    else:
+        io.output(motor_enable_pin, True)
+        motor_is_enabled = 1
+        print_screen()
+        print_current_task("motor enabled",1)
 
 def step_once():
     io.output(motor_step_pin, True)
@@ -91,6 +99,7 @@ def stacking():
     for x in range(0, number_of_shot):
             time.sleep(camera_vibration_delay)
             take_picture()
+            take_picture()
             time.sleep(camera_taking_picture_delay)
             print_current_task('stacking : picture ' + str(x + 1) + '/' + str(number_of_shot), 0 )
             for y in range(0, number_of_step):
@@ -105,6 +114,9 @@ from blessed import Terminal
 term = Terminal()
 
 def print_screen():
+        
+        print(term.clear)
+        
         print("      /\/\   ___| |_ ___  ___  _ __  / _| |_ __ _  ___| | __ " +  term.orange(" / _ \ / |"))
         print("     /    \ / _ | __/ _ \/ _ \| '__| \ \| __/ _` |/ __| |/ / " +  term.orange("| ' ' || |"))
         print("    / /\/\ |  __| ||  __| (_) | |    _\ | || (_| | (__|   <  " +  term.orange("| |_| ") + term.orangered("_") + term.orange("| |"))
@@ -115,15 +127,18 @@ def print_screen():
         print("")
         print("")
         print('===========================================================================')
-        print(term.bold('q') + ' quit | ' + term.bold('e') + ' enable motor | ' + term.bold('d') + ' disable motor ')
+        if motor_is_enabled == 0:
+                print(term.bold('q') + ' quit | ' + term.bold('m') + ' enable motor')
+        else:
+                print(term.bold('q') + ' quit | ' + term.bold('m') + ' disable motor ')
         print(term.bold('r') + ' reverse step | ' + term.bold('f') + ' forward step | ' + term.bold('t') + ' reverse rotation | ' + term.bold('g') + ' forward rotation')
         print(term.bold('s') + ' take a shot | ' + term.bold('z') + ' begin stacking!')
         
 def print_current_task(current_task, status):
         if status == 0 :
-                print(term.move_y(6) + term.clear_eol() + term.orange(current_task))
+                print(term.move_y(7) + term.clear_eol() + term.orange(current_task))
         else:
-                print(term.move_y(6) + term.clear_eol() + term.green(current_task))
+                print(term.move_y(7) + term.clear_eol() + term.green(current_task))
 
 # The getch method can determine which key has been pressed
 # by the user on the keyboard by accessing the system files
@@ -160,12 +175,9 @@ with term.fullscreen(),term.cbreak():
                         print_current_task("forward rotation",0)
                         rotate_forward()
                         print_current_task("forward rotation",1)
-                elif val.lower() == 'e':
+                elif val.lower() == 'm':
                         stepper_enable()
                         print_current_task("motor enabled",1)
-                elif val.lower() == 'd':
-                        stepper_disable()
-                        print_current_task("motor disabled",1)
                 elif val.lower() == 's':
                         take_picture()
                         print_current_task("took a shot",1)
