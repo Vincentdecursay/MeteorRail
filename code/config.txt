@@ -13,5 +13,4 @@ camera_taking_picture_delay = 0.2
 double_shot_is_enabled = 0
 
 [STACKING]
-number_of_shot = 40
 number_of_step = 4
