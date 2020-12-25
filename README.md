@@ -16,7 +16,7 @@ Motorized stacking rail project for micro and macrophotograhy, controlled by a R
 - **2.5mm jack female connector** 
 
 ## Schematic
-![Image of schematic](https://github.com/Vincentdecursay/MeteorStack/blob/main/hardware/hardware_schematic.png)
+![Image of schematic](https://github.com/Vincentdecursay/MeteorRail/blob/main/hardware/hardware_schematic.png)
 **Dont forget to configure your motor controller with the right current for your stepper motor**
 
 # Software
